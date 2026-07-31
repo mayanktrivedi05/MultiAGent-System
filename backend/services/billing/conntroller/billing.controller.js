@@ -49,7 +49,8 @@ export const verifyPaymnet=async(req,res)=>{
         payment.status="paid"
         payment.paymentId=razorpay_payment_id
         await payment.save()
-        await axios.post(`${process.env.AUTH_SERVICE}/update-plan`,{userId:payment.userId,credits:payment.credits,plan:payment.plan})
+        const authServiceUrl = process.env.AUTH_SERVICE || "https://multiagent-auth.onrender.com";
+        await axios.post(`${authServiceUrl}/update-plan`,{userId:payment.userId,credits:payment.credits,plan:payment.plan})
         return res.status(200).json({message:"payment verified successfully"})
     }
     catch(error){
