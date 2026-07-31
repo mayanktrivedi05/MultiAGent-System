@@ -50,6 +50,14 @@ app.get("/api/me", protect, getCurrentUser)
 app.get("/", (req, res) => {
     res.send("hello from gateway");
 })
-app.listen(port,()=>{
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Gateway Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("Gateway Uncaught Exception:", err.message);
+});
+
+app.listen(port, () => {
     console.log(`server is running on port ${port}`);
 })
