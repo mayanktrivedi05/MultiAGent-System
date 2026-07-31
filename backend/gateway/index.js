@@ -32,7 +32,17 @@ app.use(cors({
 }))
 app.use(morgan("dev"))
 app.use(cookieParser())
-app.use('/api/auth', proxy(AUTH_SERVICE));
+
+const createServiceProxy = (targetUrl) => proxy(targetUrl, {
+    limit: "50mb",
+    timeout: 60000,
+    proxyErrorHandler: (err, res, next) => {
+        console.error("Gateway proxy error to", targetUrl, ":", err.message);
+        return res.status(503).json({ message: "Service is starting up, please try again in a few seconds." });
+    }
+});
+
+app.use('/api/auth', createServiceProxy(AUTH_SERVICE));
 app.use('/api/chat', protect, proxyWithHeader(CHAT_SERVICE));
 app.use('/api/agent', protect, proxyWithHeader(AGENT_SERVICE));
 app.use('/api/billing', protect, proxyWithHeader(BILLING_SERVICE));
