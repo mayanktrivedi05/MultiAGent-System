@@ -80,7 +80,7 @@ graph TD
 | **Frontend** | React 19, Vite, Redux Toolkit, TailwindCSS, Monaco Editor, Motion, Lucide Icons |
 | **Backend & Microservices** | Node.js, Express.js, Express HTTP Proxy, Morgan, Cookie-Parser |
 | **Databases & Cache** | MongoDB Atlas, Qdrant Cloud Vector DB, Upstash Redis |
-| **AI Framework & APIs** | LangChain, Groq API, Google Gemini AI, OpenRouter, Tavily Web Search |
+| **AI Framework & APIs** | LangGraph, LangChain, Groq API, Google Gemini AI, OpenRouter, Tavily Web Search |
 | **Storage & Auth** | AWS S3 (SDK v3), Firebase Authentication, Razorpay Payments |
 | **DevOps & Infrastructure** | Docker, Docker Compose, Nginx Reverse Proxy, Vercel, Render PaaS |
 
