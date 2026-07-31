@@ -3,11 +3,11 @@ import { addMessage } from "../config/momory.js"
 import { graph } from "../graph/graph.js"
 import axios from "axios"
 
-export const agent = async (req, res,next) => {
+export const agent = async (req, res, next) => {
     try {
         const { prompt, conversationId, agent } = req.body
         const file = req.file
-        console.log("file", file    )
+        const userId = req.headers["x-user-id"]
         const chatServiceUrl = process.env.CHAT_SERVICE_URL || "https://multiagent-chat.onrender.com";
         try {
             await axios.post(`${chatServiceUrl}/save-message`, { conversationId, role: "user", content: prompt })
@@ -30,6 +30,6 @@ export const agent = async (req, res,next) => {
             credits: result?.credits
         })
     } catch (error) {
-       next(error)
+        next(error)
     }
 }
