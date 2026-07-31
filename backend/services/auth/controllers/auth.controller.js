@@ -23,16 +23,17 @@ export const login = async (req, res) => {
             totalCredits: user.totalCredits,
             planExpiresAt: user.planExpiresAt
         }), "EX", 60 * 60 * 24 * 7)
+        const isProduction = process.env.NODE_ENV === "production" || true;
         res.cookie('session', sessionId, {
             httpOnly: true,
-            secure: false,
-            sameSite: "strict",
+            secure: true,
+            sameSite: "none",
             maxAge: 1000 * 60 * 60 * 24 * 7
         })
         return res.status(200).json(user)
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: `login error ${error}` })
+        console.error("Login controller error:", error);
+        return res.status(500).json({ message: `login error ${error.message || error}` })
     }
 }
 
@@ -41,7 +42,11 @@ export const logOut = async (req, res) => {
         const sessionId = req.cookies?.session
         await redis.del(`session:${sessionId}`)
 
-        res.clearCookie("session")
+        res.clearCookie("session", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        })
         return res.status(200).json({ message: "logout successfully" })
     } catch (error) {
         return res.status(500).json({ message: `logout error ${error}` })
