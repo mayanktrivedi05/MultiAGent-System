@@ -21,7 +21,13 @@ const rawFrontendUrl = process.env.FRONTEND_URL || "https://multi-a-gent-system.
 const frontendOrigin = rawFrontendUrl.replace(/\/$/, "");
 
 app.use(cors({
-    origin: [frontendOrigin, "https://multi-a-gent-system.vercel.app"],
+    origin: (origin, callback) => {
+        if (!origin || origin.includes("vercel.app") || origin.includes("localhost") || origin === frontendOrigin) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
     credentials: true
 }))
 app.use(morgan("dev"))
