@@ -18,15 +18,29 @@ export const login = async (req, res) => {
             console.warn("Firebase Admin verifyIdToken warning, falling back to token decode:", e.message)
         }
         if (!decoded) {
-            const base64Url = token.split('.')[1]
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-            const jsonPayload = Buffer.from(base64, 'base64').toString('utf8')
-            decoded = JSON.parse(jsonPayload)
+            try {
+                const base64Url = token.split('.')[1]
+                if (base64Url) {
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+                    const jsonPayload = Buffer.from(base64, 'base64').toString('utf8')
+                    decoded = JSON.parse(jsonPayload)
+                }
+            } catch (jwtErr) {
+                console.error("Manual JWT decode error:", jwtErr.message);
+            }
+        }
+
+        if (!decoded) {
+            return res.status(400).json({ message: "Invalid or malformed auth token" });
         }
 
         const uid = decoded.uid || decoded.user_id || decoded.sub;
+        if (!uid) {
+            return res.status(400).json({ message: "Invalid user token payload (no uid found)" });
+        }
+
         const name = decoded.name || decoded.email?.split('@')[0] || "User";
-        const email = decoded.email;
+        const email = decoded.email || "";
         const avatar = decoded.picture || decoded.avatar || "";
 
         let user = await User.findOne({ firebaseUid: uid })
@@ -34,17 +48,22 @@ export const login = async (req, res) => {
             user = await User.create({ firebaseUid: uid, name, email, avatar })
         }
         const sessionId = crypto.randomUUID()
-        await redis.set(`user-session-${user?._id}`, sessionId,"EX", 60 * 60 * 24 * 7)
-        await redis.set(`session:${sessionId}`, JSON.stringify({
-            userId: user._id,
-            name: user.name,
-            email: user.email,
-            avatar: user.avatar,
-            plan: user.plan,
-            credits: user.credits,
-            totalCredits: user.totalCredits,
-            planExpiresAt: user.planExpiresAt
-        }), "EX", 60 * 60 * 24 * 7)
+        try {
+            await redis.set(`user-session-${user?._id}`, sessionId,"EX", 60 * 60 * 24 * 7)
+            await redis.set(`session:${sessionId}`, JSON.stringify({
+                userId: user._id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar,
+                plan: user.plan,
+                credits: user.credits,
+                totalCredits: user.totalCredits,
+                planExpiresAt: user.planExpiresAt
+            }), "EX", 60 * 60 * 24 * 7)
+        } catch (redisErr) {
+            console.error("Redis session set error during login:", redisErr.message);
+        }
+
         res.cookie('session', sessionId, {
             httpOnly: true,
             secure: true,
@@ -54,7 +73,7 @@ export const login = async (req, res) => {
         return res.status(200).json(user)
     } catch (error) {
         console.error("Login controller error:", error);
-        return res.status(500).json({ message: `login error ${error.message || error}` })
+        return res.status(500).json({ message: `login error: ${error.message || error}` })
     }
 }
 

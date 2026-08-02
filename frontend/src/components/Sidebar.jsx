@@ -18,9 +18,10 @@ function Sidebar() {
 
     const [imgError, setimgError] = useState(false)
     useEffect(() => {
+        if (!userData?._id) return
         const getConv = async () => {
             const data = await getConversation()
-            dispatch(setConversations(data))
+            if (data) dispatch(setConversations(data))
         }
         getConv()
     }, [userData?._id])

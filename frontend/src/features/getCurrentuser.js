@@ -1,11 +1,13 @@
 import api from "../../utils/axios"
-const getCurrentUser=async(req,res)=>{
-    try{
-        const {data}=await api.get("/api/me")
+const getCurrentUser = async () => {
+    try {
+        const { data } = await api.get("/api/me")
         return data
-    }catch(error){
-        console.log(error)
-            return null
+    } catch (error) {
+        if (error?.response?.status !== 401) {
+            console.error("getCurrentUser error:", error)
+        }
+        return null
     }
 }
 export default getCurrentUser
