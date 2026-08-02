@@ -12,10 +12,10 @@ dotenv.config();
 const port = process.env.PORT || 8000;
 const app = express();
 
-const AUTH_SERVICE = process.env.AUTH_SERVICE || "http://localhost:8001";
-const CHAT_SERVICE = process.env.CHAT_SERVICE || "http://localhost:8002";
-const AGENT_SERVICE = process.env.AGENT_SERVICE || "http://localhost:8003";
-const BILLING_SERVICE = process.env.BILLING_SERVICE || "http://localhost:8004";
+const AUTH_SERVICE = process.env.AUTH_SERVICE || "https://multiagent-auth.onrender.com";
+const CHAT_SERVICE = process.env.CHAT_SERVICE || "https://multiagent-chat.onrender.com";
+const AGENT_SERVICE = process.env.AGENT_SERVICE || "https://multiagent-agent.onrender.com";
+const BILLING_SERVICE = process.env.BILLING_SERVICE || "https://multiagent-billing.onrender.com";
 
 const rawFrontendUrl = process.env.FRONTEND_URL || "https://multi-a-gent-system.vercel.app";
 const frontendOrigin = rawFrontendUrl.replace(/\/$/, "");
